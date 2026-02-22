@@ -115,13 +115,7 @@ Customize the color palette in `src/app/globals.css`:
 
 ### Vercel (Recommended)
 
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel
-```
+The app is deployed at [https://lexis-lab-pi.vercel.app](https://lexis-lab-pi.vercel.app)
 
 ### Netlify
 

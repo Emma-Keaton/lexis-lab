@@ -82,6 +82,6 @@ export const seoConfig = {
   title: "Lexi's Lab | Where Creativity Meets Code",
   description: 'A digital studio bridging aesthetic brilliance and technical excellence. Brand Design, Web Development, and Automation solutions.',
   keywords: ['web development', 'brand design', 'automation', 'digital studio', 'react', 'typescript'],
-  url: 'https://lexis-lab.vercel.app',
+  url: 'https://lexis-lab-pi.vercel.app',
   ogImage: '/images/logo1.png',
 };
