@@ -42,11 +42,20 @@ export const metadata: Metadata = {
     title: seoConfig.title,
     description: seoConfig.description,
     siteName: "Lexi's Lab",
+    images: [
+      {
+        url: 'https://lexis-lab-pi.vercel.app/images/logo1.png',
+        width: 1200,
+        height: 630,
+        alt: "Lexi's Lab Logo",
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: seoConfig.title,
     description: seoConfig.description,
+    images: ['https://lexis-lab-pi.vercel.app/images/logo1.png'],
   },
 };
 
