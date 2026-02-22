@@ -2,7 +2,7 @@
 
 A digital studio bridging aesthetic brilliance and technical excellence. Lexi's Lab specializes in **Brand Design**, **Web Development**, and **Automation** solutions.
 
-![Lexi's Lab](/public/images/og-image.png)
+![Lexi's Lab](https://raw.githubusercontent.com/Emma-Keaton/lexis-lab/main/public/images/logo1.png)
 
 ## Features
 
@@ -36,7 +36,7 @@ A digital studio bridging aesthetic brilliance and technical excellence. Lexi's 
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/Emma-Keaton/lexis-lab.git
 cd lexis-lab
 
 # Install dependencies
