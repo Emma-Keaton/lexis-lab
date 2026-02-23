@@ -7,8 +7,6 @@ import { Hero, Exhibition, Capabilities, Contact } from '@/components/sections';
 import { LoadingProvider, useLoading } from '@/components/providers/LoadingProvider';
 
 function PageContent() {
-  const { setSceneLoaded } = useLoading();
-
   const handleExplore = () => {
     const exhibition = document.getElementById('exhibition');
     exhibition?.scrollIntoView({ behavior: 'smooth' });
@@ -16,8 +14,8 @@ function PageContent() {
 
   return (
     <>
-      <Scene onLoaded={setSceneLoaded} />
-      
+      <Scene />
+
       <Hero onExplore={handleExplore} />
       <Exhibition />
       <Capabilities />

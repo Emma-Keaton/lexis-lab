@@ -2,7 +2,7 @@
 
 'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { SplashScreen } from '@/components/ui/SplashScreen';
 
 interface LoadingContextType {
@@ -19,45 +19,16 @@ interface LoadingProviderProps {
 
 export function LoadingProvider({ children }: LoadingProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
-  const [sceneReady, setSceneReady] = useState(false);
-  const [contentReady, setContentReady] = useState(false);
-
-  const setSceneLoaded = useCallback(() => {
-    setSceneReady(true);
-  }, []);
-
-  const setContentLoaded = useCallback(() => {
-    setContentReady(true);
-  }, []);
-
-  useEffect(() => {
-    const minLoadTime = 1500;
-    const startTime = Date.now();
-
-    const checkReady = () => {
-      if (sceneReady && contentReady) {
-        const elapsed = Date.now() - startTime;
-        const remaining = Math.max(0, minLoadTime - elapsed);
-        
-        setTimeout(() => {
-          setIsLoading(false);
-        }, remaining);
-      }
-    };
-
-    checkReady();
-  }, [sceneReady, contentReady]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setContentReady(true);
-    }, 100);
-
+      setIsLoading(false);
+    }, 1500);
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <LoadingContext.Provider value={{ isLoading, setSceneLoaded, setContentLoaded }}>
+    <LoadingContext.Provider value={{ isLoading, setSceneLoaded: () => {}, setContentLoaded: () => {} }}>
       <SplashScreen isLoading={isLoading} />
       {children}
     </LoadingContext.Provider>

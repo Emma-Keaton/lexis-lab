@@ -185,7 +185,7 @@ function CarouselCard({ project, angle, radius, index, onClick, isDark }: Carous
   return (
     <group
       ref={meshRef}
-      position={[x, 32, z]}
+      position={[x, 0, z]}
       rotation={[0, -angle, 0]}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
@@ -257,7 +257,7 @@ function FloatingCarouselScene({ projects, rotation, onProjectClick, isDark }: F
   const anglePerCard = (Math.PI * 2) / Math.max(projects.length, 1);
 
   return (
-    <>
+    <group position={[0, 2, 0]}>
       {projects.map((project, index) => {
         const angle = index * anglePerCard + rotation;
         return (
@@ -272,16 +272,16 @@ function FloatingCarouselScene({ projects, rotation, onProjectClick, isDark }: F
           />
         );
       })}
-    </>
+    </group>
   );
 }
 
 // Camera rig for carousel
 function CarouselCameraRig() {
   useFrame((state) => {
-    // Position camera to view carousel from slightly above
-    state.camera.position.set(0, 2, 8);
-    state.camera.lookAt(0, 0, 0);
+    // Position camera to view carousel from front - zoomed in close
+    state.camera.position.set(0, 2, 10);
+    state.camera.lookAt(0, 2, 0);
   });
   return null;
 }
@@ -490,7 +490,6 @@ export function Exhibition() {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
   const touchStartX = useRef(0);
-  const touchStartY = useRef(0);
 
   const filteredProjects = activeCategory === 'all'
     ? projects
@@ -523,34 +522,25 @@ export function Exhibition() {
     setSelectedProject(filteredProjects[nextIndex]);
   }, [filteredProjects, selectedProject]);
 
-// Carousel touch handlers - only capture horizontal swipes
+  // Simple carousel touch handlers for discrete rotation
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
   }, []);
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (!touchStartX.current || !touchStartY.current) return;
-    
     const deltaX = e.changedTouches[0].clientX - touchStartX.current;
-    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
     const swipeThreshold = 50;
     
-    // Only capture horizontal swipes, let vertical taps/clicks pass through
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > swipeThreshold) {
-      e.preventDefault();
+    if (Math.abs(deltaX) > swipeThreshold) {
       const anglePerCard = (Math.PI * 2) / Math.max(filteredProjects.length, 1);
       if (deltaX > 0) {
-        // Swipe right - rotate counter-clockwise
-        setCarouselRotation((prev) => prev - anglePerCard);
+        // Swipe right - rotate clockwise (previous card)
+        setCarouselRotation(prev => prev + anglePerCard);
       } else {
-        // Swipe left - rotate clockwise
-        setCarouselRotation((prev) => prev + anglePerCard);
+        // Swipe left - rotate counter-clockwise (next card)
+        setCarouselRotation(prev => prev - anglePerCard);
       }
     }
-    // Reset for next touch
-    touchStartX.current = 0;
-    touchStartY.current = 0;
   }, [filteredProjects.length]);
 
   return (
@@ -638,14 +628,14 @@ export function Exhibition() {
         {/* Mobile - Floating Carousel */}
         {isMobile && filteredProjects.length > 0 && (
           <div 
-            className="relative h-[60vh] w-full rounded-2xl overflow-hidden bg-[#F8F9FA] dark:bg-[#0F0F12]"
+            className="relative h-[70vh] w-full rounded-2xl overflow-hidden bg-[#F8F9FA] dark:bg-[#0F0F12]"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
             <Canvas
               dpr={[1, 2]}
               gl={{ antialias: true, alpha: true }}
-              camera={{ position: [0, -5, 35], fov: 55 }}
+              camera={{ position: [0, 2, 35], fov: 50 }}
               onCreated={({ gl }) => {
                 gl.setClearColor(isDark ? 0x0F0F12 : 0xF8F9FA, 1);
               }}
@@ -653,7 +643,7 @@ export function Exhibition() {
               <ambientLight intensity={isDark ? 0.5 : 0.8} />
               <directionalLight position={[5, 5, 5]} intensity={isDark ? 0.8 : 1.2} />
               <pointLight position={[-5, -5, -5]} intensity={isDark ? 0.3 : 0.5} color="#A29BFE" />
-              
+
               <FloatingCarouselScene
                 projects={filteredProjects}
                 rotation={carouselRotation}
@@ -661,16 +651,29 @@ export function Exhibition() {
                 isDark={isDark}
               />
               <CarouselCameraRig />
-              
+
               <Environment preset={isDark ? 'night' : 'city'} />
             </Canvas>
-            
-            {/* Swipe indicator */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-black/20 dark:bg-black/40 backdrop-blur-sm text-gray-700 dark:text-white/60 text-sm flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-              </svg>
-              Swipe to explore
+
+            {/* Swipe gesture area */}
+            <div 
+              className="absolute bottom-4 left-4 right-4 z-20"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
+              <div className="glass rounded-2xl px-6 py-4 backdrop-blur-md bg-white/10 dark:bg-black/20 border border-white/10 dark:border-white/5 shadow-lg">
+                <div className="flex items-center justify-center gap-3">
+                  <svg className="w-5 h-5 text-gray-500 dark:text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  <span className="text-sm font-medium text-gray-600 dark:text-white/70">
+                    Swipe here to explore
+                  </span>
+                  <svg className="w-5 h-5 text-gray-500 dark:text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
         )}
