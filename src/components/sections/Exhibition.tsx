@@ -487,6 +487,7 @@ export function Exhibition() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [carouselRotation, setCarouselRotation] = useState(0);
+  const targetRotationRef = useRef(0);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
   const touchStartX = useRef(0);
@@ -529,19 +530,37 @@ export function Exhibition() {
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     const deltaX = e.changedTouches[0].clientX - touchStartX.current;
-    const swipeThreshold = 50;
+    const swipeThreshold = 100; // Increased threshold for less sensitivity
     
     if (Math.abs(deltaX) > swipeThreshold) {
+      // Set target rotation for smooth animation
       const anglePerCard = (Math.PI * 2) / Math.max(filteredProjects.length, 1);
       if (deltaX > 0) {
         // Swipe right - rotate clockwise (previous card)
-        setCarouselRotation(prev => prev + anglePerCard);
+        targetRotationRef.current += anglePerCard;
       } else {
         // Swipe left - rotate counter-clockwise (next card)
-        setCarouselRotation(prev => prev - anglePerCard);
+        targetRotationRef.current -= anglePerCard;
       }
     }
   }, [filteredProjects.length]);
+
+  // Smooth rotation animation
+  useEffect(() => {
+    let animationId: number;
+    const animate = () => {
+      setCarouselRotation(prev => {
+        const diff = targetRotationRef.current - prev;
+        if (Math.abs(diff) < 0.001) {
+          return targetRotationRef.current;
+        }
+        return prev + diff * 0.15; // Smooth easing (higher = faster)
+      });
+      animationId = requestAnimationFrame(animate);
+    };
+    animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, []);
 
   return (
     <section id="exhibition" className="relative min-h-screen py-24 px-4 bg-[var(--background)] overflow-hidden">
